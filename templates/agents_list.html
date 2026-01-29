@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление Агентами</title>
+    <<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-wrapper">
+                  {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                  {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h1>СЕКРЕТНЫЙ АРХИВ: АГЕНТЫ</h1>
+        <nav>
+            <div class="search-box">
+                <form action="/" method="GET">
+                    <input type="text" name="search" placeholder="Поиск по кодовому имени...">
+                    <select name="level">
+                        <option value="">Все уровни</option>
+                        {% for level in levels %}
+                        <option value="{{ level.id }}">{{ level.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn-action">Найти</button>
+                </form>
+
+            </div>
+            <a href="/add" class="btn">Добавить агента</a>
+        </nav>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Кодовое имя</th>
+                    <th>Досье</th>
+                    <th>Изменить</th>
+                    <th>Удалить</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for agent in agents %}
+                    <tr>
+                        <td>{{ agent.id }}</td>
+                        <td>{{ agent.codename }}</td>
+                        <td class="td-20">
+                            <a href="{{ url_for('view_agent', id=agent.id) }}">
+                                <img src="{{ url_for('static', filename='img/dossier-icon.svg') }}" class="icons" alt="Досье">
+                            </a>
+                        </td>
+                        <td class="td-20">
+                            <a href="{{url_for('edit_agent', id = agent.id)}}" class="edit">
+                                <img src="{{ url_for('static', filename='img/edit-icon.svg') }}" class="icons" alt="Изменить">
+                            </a>
+                        </td>
+                        <td class="td-20">
+                            <a href="{{url_for('delete_agent', id = agent.id)}}" class="delete"
+                                onclick="return confirm('Вы действительно хотите уничтожить досье агента {{ agent.codename }}?')">
+                                <img src="{{ url_for('static', filename='img/delete-icon.svg') }}" class="icons" alt="Удалить">
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button id="theme-toggle" class="btn" style="margin-top: 20px;">Сменить режим</button>
+    </div>
+
+    <div class="emergency-zone">
+        <form action="{{ url_for('emergency_wipe') }}" method="POST">
+            <button type="submit" class="btn-wipe" onclick="return confirm('ВНИМАНИЕ! Вы уверены, что хотите уничтожить ВСЕ досье? Это действие необратимо!')">
+                🚨 СЕКРЕТНЫЙ РЕЖИМ: УНИЧТОЖИТЬ БАЗУ
+            </button>
+        </form>
+    </div>
+
+
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

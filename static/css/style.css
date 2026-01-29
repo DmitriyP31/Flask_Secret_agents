@@ -1,0 +1,218 @@
+body.dark-theme{
+    --bg-color: #0d0d0d;
+    --container-bg: #121212;
+    --text-color: #00ff41;
+    --border-color: #00ff41;
+    --table-header: #1a1a1a;
+    --input-bg: #1a1a1a;
+    --input-text: #ffffff;
+    --btn-hover-text: #000000;
+    --shadow: rgba(0, 255, 65, 0.2);
+}
+
+:root {
+    --bg-color: #f0f2f5;
+    --container-bg: #ffffff;
+    --text-color: #2c3e50;
+    --border-color: #34495e;
+    --table-header: #ecf0f1;
+    --input-bg: #ffffff;
+    --input-text: #2c3e50;
+    --btn-hover-text: #ffffff;
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
+.theme-switch-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    padding: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    max-width: 700px;
+    margin: 0 auto;
+    background-color: var(--container-bg);
+    border: 2px solid var(--border-color);
+    padding: 30px;
+    box-shadow: 0 0 15px var(--shadow);
+}
+
+h1 {
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.btn, .btn-action {
+    display: inline-block;
+    padding: 10px 20px;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+    transition: 0.3s;
+    background: transparent;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn:hover, .btn-action:hover {
+    background: var(--border-color);
+    color: var(--btn-hover-text);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.td-20 {
+    width: 20%;
+}
+
+th {
+    background-color: var(--table-header);
+}
+
+input, select {
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--input-text);
+    padding: 10px;
+}
+
+select {
+    color: var(--text-color);
+}
+
+.btn-save {
+    background: var(--border-color);
+    color: var(--btn-hover-text);
+    padding: 12px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    width: max-content;
+}
+
+.icons {
+    width: 30px;
+    height: 30px;
+}
+
+.btn-dice {
+    background: var(--container-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 1.5rem;
+    padding: 5px 10px;
+    cursor: pointer;
+    height: 37.6px;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-btn {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.input-with-btn input {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.search-box {
+    margin: 0;
+}
+
+.agent-form {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    margin: auto;
+    gap: 15px;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.8em;
+}
+
+.emergency-zone {
+    margin-top: 50px;
+    padding: 20px;
+    text-align: center;
+}
+
+.btn-wipe {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+.btn-wipe:hover {
+    background-color: #cc0000;
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+    transform: scale(1.05);
+}
+
+.danger {
+    text-align: center;
+    color: #ff4444;
+    border-color: #ff4444;
+    background: rgba(255, 68, 68, 0.1);
+    animation: hideMessage 5s forwards;
+}
+
+.success {
+    text-align: center;
+    background-color: #dff0d8;
+    color: #2b542c;
+    border-color: #00ff41;
+    animation: hideMessage 5s forwards;
+}
+
+.flash.warning {
+    text-align: center;
+    color: #ffcc00;
+    background: rgba(255, 204, 0, 0.1);
+    animation: hideMessage 5s forwards;
+}
+
+@keyframes hideMessage {
+    0% { opacity: 1; max-height: 100px; padding: 10px; margin-bottom: 10px; }
+    80% { opacity: 1; max-height: 100px; padding: 10px; margin-bottom: 10px; }
+    100% { opacity: 0; max-height: 0; padding: 0; margin-bottom: 0; border: 0; overflow: hidden; }
+}
+

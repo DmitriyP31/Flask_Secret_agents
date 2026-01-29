@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование досье</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>РЕДАКТИРОВАНИЕ АГЕНТА ID: {{ agent.id }}</h1>
+
+        <form action="{{ url_for('edit_agent', id=agent.id) }}" method="POST" class="agent-form" novalidate>
+            <label>Кодовое имя:</label>
+            <input type="text" name="codename" value="{{ form_data.codename }}" required>
+            {% if errors.codename %}
+                <div class="error-message">[!] {{ errors.codename }}</div>
+            {% endif %}
+
+            <label> Контактный номер:</label>
+            <input type="text" name="contact_number" value="{{ form_data.contact_number | default('', True) }}">
+            {% if errors.contact_number %}
+                <div class="error-message">[!] {{ errors.contact_number }}</div>
+            {% endif %}
+
+            <label>Email:</label>
+            <input type="text" name="email" value="{{ form_data.email }}" required>
+            {% if errors.email %}
+                <div class="error-message">[!] {{ errors.email }}</div>
+            {% endif %}
+
+            <label>Уровень допуска:</label>
+            <select name="access_level_id">
+                <option value="" disabled selected>-- Выберите уровень допуска --</option>
+                {% for level in levels %}
+                    <option value="{{ level.id }}"
+                            {% if form_data.access_level_id|string == level.id|string %}selected{% endif %}>
+                        {{ level.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if errors.access_level_id %}
+                <div class="error-message">[!] {{ errors.access_level_id }}</div>
+            {% endif %}
+
+            <div style="display: flex; justify-content: space-around; margin-top: 30px">
+                <button type="submit" class="btn-save">Обновить данные</button>
+                <a href="/" >
+                    <button type="button" class="btn-save">Отмена</button>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

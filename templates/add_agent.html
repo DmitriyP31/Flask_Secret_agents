@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вербовка</title>
+    <<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>ВЕРБОВКА НОВОГО АГЕНТА</h1>
+        <form action="/add" method="POST" class="agent-form" novalidate>
+            <label>Кодовое имя:</label>
+            <div class="input-with-btn">
+                <input type="text" name="codename" id="codename-input" value="{{ form_data.codename if form_data else '' }}"
+                       required placeholder="Введите или сгенерируйте...">
+                <button type="button" id="generate-name" class="btn-dice" title="Сгенерировать имя">🎲</button>
+            </div>
+            {% if errors.codename %}
+                <div class="error-message">[!] {{ errors.codename }}</div>
+            {% endif %}
+
+            <label> Контактный номер:</label>
+            <input type="text" name="contact_number" value="{{ form_data.contact_number if form_data else '' }}">
+            {% if errors.contact_number %}
+                <div class="error-message">[!] {{ errors.contact_number }}</div>
+            {% endif %}
+
+            <label>Email:</label>
+            <input type="text" name="email" value="{{ form_data.email if form_data else '' }}" required>
+            {% if errors.email %}
+                <div class="error-message">[!] {{ errors.email }}</div>
+            {% endif %}
+
+            <label>Уровень допуска:</label>
+            <select name="access_level_id" required>
+                <option value="" disabled selected>-- Выберите уровень допуска --</option>
+                {% for level in levels %}
+                    <option value="{{ level.id }}"
+                            {% if form_data.access_level_id|string == level.id|string %}selected{% endif %}>
+                        {{ level.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if errors.access_level_id %}
+                <div class="error-message">[!] {{ errors.access_level_id }}</div>
+            {% endif %}
+
+            <div style="display: flex; justify-content: space-around; margin-top: 30px;">
+                <button type="submit" class="btn-save">Внести в базу</button>
+                <a href="/">
+                    <button type="button" class="btn-save">Отмена</button>
+                </a>
+            </div>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

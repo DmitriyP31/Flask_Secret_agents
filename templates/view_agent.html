@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Досье Агента</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>ДОСЬЕ: [{{agent.codename}}]</h1>
+        <div class="info-card">
+            <p><strong>ID:</strong> {{agent.id}}</p>
+            <p><strong>Кодовое имя::</strong> {{agent.codename}}</p>
+            <p><strong>Контактный номер:</strong> {{agent.contact_number | default('', True) }}</p>
+            <p><strong>Email:</strong> {{agent.email}}</p>
+            <p><strong>Уровень допуска:</strong> {{agent.access_info.name}}</p>
+        </div>
+        <div class="actions">
+            <a href="{{url_for('edit_agent', id = agent.id)}}" class="btn">Редактировать</a>
+            <a href="/" class="btn">Назад к списку</a>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

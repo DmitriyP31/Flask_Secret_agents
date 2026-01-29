@@ -9,6 +9,8 @@
     <div class="container">
         <h1>ВЕРБОВКА НОВОГО АГЕНТА</h1>
         <form action="/add" method="POST" class="agent-form" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
             <label>Кодовое имя:</label>
             <div class="input-with-btn">
                 <input type="text" name="codename" id="codename-input" value="{{ form_data.codename if form_data else '' }}"

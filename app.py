@@ -1,16 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
+from flask_wtf.csrf import CSRFProtect
+import secrets
 import re
 
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = 'secret-agent-key'
+app.config['SECRET_KEY'] = secrets.token_hex(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+csrf = CSRFProtect(app)
 
 
 class Agent(db.Model):
@@ -43,7 +46,9 @@ def validate_agent_data(data, current_id=None):
     errors = {}
 
     codename = data.get('codename', '').strip()
-    if len(codename) < 3:
+    if not codename:
+        errors['codename'] = "Кодовое имя не может быть пустым!"
+    elif len(codename) < 3:
         errors['codename'] = "Нужно минимум 3 символа!"
     else:
         existing_name = Agent.query.filter_by(codename=codename).first()
@@ -69,29 +74,47 @@ def validate_agent_data(data, current_id=None):
             if existing_phone and (current_id is None or existing_phone.id != current_id):
                 errors['contact_number'] = "Этот номер телефона уже используется!"
 
-    access_level_id = data.get('access_level_id', '')
+    access_level_id = data.get('access_level_id', '').strip()
     if not access_level_id:
         errors['access_level_id'] = "Уровень доступа не выбран!"
     else:
-        level_exists = AccessLevel.query.get(access_level_id)
-        if not level_exists:
-            errors['access_level_id'] = "Такого уровня доступа не существует!"
+        try:
+            level_id = int(access_level_id)
+            level_exists = AccessLevel.query.get(level_id)
+            if not level_exists:
+                errors['access_level_id'] = "Указанный уровень доступа не существует!"
+        except ValueError:
+            errors['access_level_id'] = "Некорректный уровень доступа!"
+
 
     return errors
 
 
 @app.route('/')
 def agents_list():
-    search = request.args.get('search')
-    level = request.args.get('level')
-    agents = Agent.query
+    search = request.args.get('search', '').strip()
+    level = request.args.get('level', '').strip()
+    try:
+        agents = Agent.query
 
-    if search:
-        agents = agents.filter(Agent.codename.contains(search))
-    if level:
-        agents = agents.filter_by(access_level_id=level)
+        if search:
+            agents = agents.filter(Agent.codename.contains(search))
+        if level:
+            try:
+                level_id = int(level)
+                if not AccessLevel.query.get(level_id):
+                    flash("Указанный уровень доступа не существует", "warning")
+                else:
+                    agents = agents.filter_by(access_level_id=level_id)
+            except ValueError:
+                flash("Некорректный уровень доступа", "warning")
 
-    return render_template('agents_list.html', agents=agents.all(), levels=AccessLevel.query.all())
+        return render_template('agents_list.html', agents=agents.all(), levels=AccessLevel.query.all())
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Ошибка базы данных: {e}")
+        flash("Произошла ошибка при загрузке списка агентов", "danger")
+        return render_template('agents_list.html', agents=[], levels=[])
 
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -104,18 +127,21 @@ def add_agent():
         errors = validate_agent_data(form_data)
 
         if not errors:
-            phone = form_data.get('contact_number', '').strip()
-            new_agent = Agent(
-                codename=form_data['codename'],
-                contact_number=phone if phone != '' else None,
-                email=form_data['email'],
-                access_level_id=int(form_data['access_level_id'])
-            )
-            db.session.add(new_agent)
-            db.session.commit()
-            flash("Агент успешно добавлен в базу", "success")
+            try:
+                new_agent = Agent(
+                    codename=form_data['codename'].strip(),
+                    contact_number=form_data.get('contact_number', '').strip() or None,
+                    email=form_data['email'].strip(),
+                    access_level_id=int(form_data['access_level_id'])
+                )
+                db.session.add(new_agent)
+                db.session.commit()
+                flash("Агент успешно добавлен в базу", "success")
 
-            return redirect(url_for('agents_list'))
+                return redirect(url_for('agents_list'))
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                flash("Ошибка при добавлении агента", "danger")
 
     return render_template('add_agent.html', levels=AccessLevel.query.all(),
                            errors=errors, form_data=form_data)
@@ -133,7 +159,7 @@ def edit_agent(id):
     errors = {}
     form_data = {
         'codename': agent.codename,
-        'contact_number': agent.contact_number,
+        'contact_number': agent.contact_number or '',
         'email': agent.email,
         'access_level_id': agent.access_level_id
     }
@@ -143,24 +169,32 @@ def edit_agent(id):
         errors = validate_agent_data(form_data, id)
 
         if not errors:
-            phone = form_data.get('contact_number', '').strip()
-            agent.codename = form_data['codename']
-            agent.contact_number = phone if phone != '' else None
-            agent.email = form_data['email']
-            agent.access_level_id = int(form_data['access_level_id'])
-            db.session.commit()
-            return redirect(url_for('agents_list'))
+            try:
+                agent.codename = form_data['codename'].strip()
+                agent.contact_number = form_data.get('contact_number', '').strip() or None
+                agent.email = form_data['email'].strip()
+                agent.access_level_id = int(form_data['access_level_id'])
+                db.session.commit()
+                flash("Досье агента успешно обновлено", "success")
+                return redirect(url_for('agents_list'))
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                flash("Ошибка при изменении досье", "danger")
 
     return render_template('edit_agent.html', agent=agent, levels=AccessLevel.query.all(),
                            errors=errors, form_data=form_data)
 
 
-@app.route('/delete/<int:id>')
+@app.route('/delete/<int:id>', methods=['POST'])
 def delete_agent(id):
-    agent = Agent.query.get_or_404(id)
-    db.session.delete(agent)
-    db.session.commit()
-    flash("Досье агента успешно удалено", "success")
+    try:
+        agent = Agent.query.get_or_404(id)
+        db.session.delete(agent)
+        db.session.commit()
+        flash("Досье агента успешно удалено", "success")
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        flash("Ошибка при удалении агента", "danger")
 
     return redirect(url_for('agents_list'))
 

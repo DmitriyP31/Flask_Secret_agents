@@ -61,10 +61,13 @@
                             </a>
                         </td>
                         <td class="td-20">
-                            <a href="{{url_for('delete_agent', id = agent.id)}}" class="delete"
-                                onclick="return confirm('Вы действительно хотите уничтожить досье агента {{ agent.codename }}?')">
-                                <img src="{{ url_for('static', filename='img/delete-icon.svg') }}" class="icons" alt="Удалить">
-                            </a>
+                            <form method="POST" action="{{ url_for('delete_agent', id=agent.id) }}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="delete-btn"
+                                        onclick="return confirm('Вы действительно хотите уничтожить досье агента {{ agent.codename }}?')">
+                                    <img src="{{ url_for('static', filename='img/delete-icon.svg') }}" class="icons" alt="Удалить">
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 {% endfor %}
@@ -75,7 +78,9 @@
 
     <div class="emergency-zone">
         <form action="{{ url_for('emergency_wipe') }}" method="POST">
-            <button type="submit" class="btn-wipe" onclick="return confirm('ВНИМАНИЕ! Вы уверены, что хотите уничтожить ВСЕ досье? Это действие необратимо!')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <button type="submit" class="btn-wipe" onclick="return confirm('ВНИМАНИЕ! Вы уверены, что хотите уничтожить ВСЕ досье?')">
                 🚨 СЕКРЕТНЫЙ РЕЖИМ: УНИЧТОЖИТЬ БАЗУ
             </button>
         </form>
